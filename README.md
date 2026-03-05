@@ -67,7 +67,6 @@ This is the difference between "patch this eventually" and "patch this now."
 # 1. Clone and configure
 git clone https://github.com/yourname/xploitdb
 cd xploitdb
-cp .env.example .env
 # Edit .env — add your NVD_API_KEY and GITHUB_TOKEN (both free)
 
 # 2. Start the stack
@@ -213,6 +212,3 @@ the `affected_products` field on CVEs maps directly to scanner output.
 This is built on 100% free, open public data sources. If you know of another
 valuable exploit feed or CVE enrichment source, open an issue or PR.
 
-## License
-
-MIT
