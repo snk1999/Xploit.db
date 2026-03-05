@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XPLOIT.DB — Exploit Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:       #0a0c10;
+  --s1:       #0f1318;
+  --s2:       #151a22;
+  --s3:       #1c232e;
+  --border:   #252d3a;
+  --border2:  #2e3847;
+  --text:     #d4dbe8;
+  --text2:    #8a97aa;
+  --text3:    #4e5d6e;
+  --red:      #ff4757;
+  --orange:   #ff6b35;
+  --yellow:   #ffc107;
+  --green:    #2ecc71;
+  --blue:     #4da6ff;
+  --purple:   #a855f7;
+  --red-dim:  rgba(255,71,87,0.12);
+  --ora-dim:  rgba(255,107,53,0.12);
+  --yel-dim:  rgba(255,193,7,0.12);
+  --grn-dim:  rgba(46,204,113,0.12);
+  --blu-dim:  rgba(77,166,255,0.12);
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-rows: 48px 1fr;
+  grid-template-columns: 200px 1fr;
+  height: 100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  color: var(--text);
+}
+
+.logo-icon {
+  width: 22px; height: 22px;
+  background: var(--red);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  animation: logobeat 3s infinite;
+}
+
+@keyframes logobeat {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,71,87,0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(255,71,87,0); }
+}
+
+.topbar-divider { width: 1px; height: 20px; background: var(--border); }
+
+.topbar-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text2);
+}
+
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot.green { background: var(--green); animation: pulse 2s infinite; }
+.dot.yellow { background: var(--yellow); }
+.dot.red { background: var(--red); animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--s1);
+  border-right: 1px solid var(--border);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.nav-group-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text3);
+  padding: 10px 8px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.12s;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.nav-item:hover { background: var(--s2); color: var(--text); }
+
+.nav-item.active {
+  background: var(--s2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.nav-item.active .nav-dot { background: var(--blue); }
+
+.nav-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--text3);
+  flex-shrink: 0;
+}
+
+.nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--s3);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.nav-badge.red { background: var(--red-dim); color: var(--red); border-color: rgba(255,71,87,0.25); }
+.nav-badge.blue { background: var(--blu-dim); color: var(--blue); border-color: rgba(77,166,255,0.25); }
+.nav-badge.yellow { background: var(--yel-dim); color: var(--yellow); border-color: rgba(255,193,7,0.25); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.sync-info {
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text3);
+  line-height: 1.8;
+}
+
+/* ── MAIN ── */
+.main {
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.panel { display: none; padding: 20px 24px; animation: fadein 0.15s ease; }
+.panel.active { display: block; }
+
+@keyframes fadein { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.page-sub {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 2px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── STAT CARDS ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stat-card.c-red::after    { background: var(--red); }
+.stat-card.c-orange::after { background: var(--orange); }
+.stat-card.c-yellow::after { background: var(--yellow); }
+.stat-card.c-green::after  { background: var(--green); }
+.stat-card.c-blue::after   { background: var(--blue); }
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+
+.stat-val {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.stat-sub.up { color: var(--green); }
+.stat-sub.warn { color: var(--yellow); }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.search-wrap {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 12px 7px 30px;
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus { border-color: var(--blue); }
+.search-input::placeholder { color: var(--text3); }
+
+.filter-btn {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: var(--text2);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover { color: var(--text); border-color: var(--border2); background: var(--s2); }
+
+.filter-btn.active {
+  background: var(--blu-dim);
+  border-color: rgba(77,166,255,0.35);
+  color: var(--blue);
+}
+
+.filter-btn.f-red.active   { background: var(--red-dim); border-color: rgba(255,71,87,0.35); color: var(--red); }
+.filter-btn.f-ora.active   { background: var(--ora-dim); border-color: rgba(255,107,53,0.35); color: var(--orange); }
+.filter-btn.f-yel.active   { background: var(--yel-dim); border-color: rgba(255,193,7,0.35); color: var(--yellow); }
+.filter-btn.f-grn.active   { background: var(--grn-dim); border-color: rgba(46,204,113,0.35); color: var(--green); }
+
+.btn-action {
+  background: var(--blue);
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  color: #000;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.btn-action:hover { opacity: 0.85; }
+
+/* ── TABLE ── */
+.table-box {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-head {
+  display: grid;
+  grid-template-columns: 148px 1fr 88px 90px 100px 110px;
+  padding: 9px 14px;
+  background: var(--s2);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+}
+
+.table-body { max-height: calc(100vh - 280px); overflow-y: auto; }
+
+.cve-row {
+  display: grid;
+  grid-template-columns: 148px 1fr 88px 90px 100px 110px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  align-items: center;
+}
+
+.cve-row:last-child { border-bottom: none; }
+.cve-row:hover { background: var(--s2); }
+
+.cve-id-cell {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--blue);
+}
+
+.cve-desc {
+  font-size: 12px;
+  color: var(--text2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 16px;
+}
+
+/* CVSS badge */
+.cvss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 22px;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.cvss.crit { background: var(--red-dim);  color: var(--red);    border-color: rgba(255,71,87,0.3); }
+.cvss.high { background: var(--ora-dim);  color: var(--orange); border-color: rgba(255,107,53,0.3); }
+.cvss.med  { background: var(--yel-dim);  color: var(--yellow); border-color: rgba(255,193,7,0.3); }
+.cvss.low  { background: var(--grn-dim);  color: var(--green);  border-color: rgba(46,204,113,0.3); }
+.cvss.na   { background: var(--s3);       color: var(--text3);  border-color: var(--border); }
+
+/* Severity text */
+.sev { font-size: 11px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+.sev.CRITICAL { color: var(--red); }
+.sev.HIGH     { color: var(--orange); }
+.sev.MEDIUM   { color: var(--yellow); }
+.sev.LOW      { color: var(--green); }
+.sev.UNKNOWN  { color: var(--text3); }
+
+.date-cell {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+/* Action buttons */
+.row-actions { display: flex; gap: 5px; align-items: center; }
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.1s;
+}
+
+.tag-pill.kev   { background: rgba(168,85,247,0.12); color: var(--purple); border-color: rgba(168,85,247,0.3); }
+.tag-pill.msf   { background: var(--red-dim);  color: var(--red);    border-color: rgba(255,71,87,0.3); }
+.tag-pill.nuc   { background: var(--blu-dim);  color: var(--blue);   border-color: rgba(77,166,255,0.3); }
+.tag-pill.poc   { background: var(--grn-dim);  color: var(--green);  border-color: rgba(46,204,113,0.3); }
+.tag-pill.edb   { background: var(--ora-dim);  color: var(--orange); border-color: rgba(255,107,53,0.3); }
+
+.mini-btn {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  color: var(--text2);
+  font-size: 11px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.mini-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* ── XPLOIT SCORE BAR ── */
+.xscore-wrap { display: flex; align-items: center; gap: 6px; }
+.xscore-bar-bg {
+  flex: 1;
+  height: 4px;
+  background: var(--s3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.xscore-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
+.xscore-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── LOADING / EMPTY ── */
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 10px;
+  color: var(--text3);
+  text-align: center;
+}
+
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.state-title { font-size: 14px; color: var(--text2); font-weight: 500; }
+.state-sub   { font-size: 12px; color: var(--text3); max-width: 280px; line-height: 1.5; }
+
+/* ── PAGINATION ── */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--s2);
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.pager-btns { display: flex; gap: 3px; }
+
+.pager-btn {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 9px;
+  color: var(--text2);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.pager-btn:hover:not(:disabled) { color: var(--text); border-color: var(--blue); }
+.pager-btn:disabled { opacity: 0.3; cursor: default; }
+.pager-btn.on { background: var(--blue); color: #000; border-color: var(--blue); font-weight: 700; }
+
+/* ── MODAL ── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(5,8,12,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.overlay.open { display: flex; }
+
+.modal {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  width: 680px;
+  max-width: 94vw;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: modalin 0.18s ease;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+@keyframes modalin { from { opacity:0; transform:scale(0.96) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+.modal-top {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+
+.modal-cve-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+
+.modal-title { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.4; }
+
+.modal-close {
+  margin-left: auto;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: all 0.1s;
+}
+
+.modal-close:hover { color: var(--text); border-color: var(--red); }
+
+.modal-body { padding: 18px 20px; }
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.meta-card {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.meta-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 4px; font-weight: 600; }
+.meta-val { font-size: 13px; font-weight: 600; color: var(--text); font-family: 'IBM Plex Mono', monospace; }
+
+.section-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+
+.desc-box {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text2);
+  margin-bottom: 16px;
+}
+
+.exploit-cards { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+.exploit-card {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exploit-card-src {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  white-space: nowrap;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.src-msf   { background: var(--red-dim);  color: var(--red);    border: 1px solid rgba(255,71,87,0.3); }
+.src-edb   { background: var(--ora-dim);  color: var(--orange); border: 1px solid rgba(255,107,53,0.3); }
+.src-gh    { background: var(--grn-dim);  color: var(--green);  border: 1px solid rgba(46,204,113,0.3); }
+.src-nuc   { background: var(--blu-dim);  color: var(--blue);   border: 1px solid rgba(77,166,255,0.3); }
+.src-ps    { background: var(--yel-dim);  color: var(--yellow); border: 1px solid rgba(255,193,7,0.3); }
+
+.exploit-card-title {
+  font-size: 12px;
+  color: var(--text2);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exploit-card-link {
+  font-size: 11px;
+  color: var(--blue);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.exploit-card-link:hover { text-decoration: underline; }
+
+.refs-list { list-style: none; }
+.refs-list li {
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.refs-list li:last-child { border: none; }
+.refs-list a { color: var(--blue); text-decoration: none; }
+.refs-list a:hover { text-decoration: underline; }
+
+/* ── SCANNER PANEL ── */
+.scanner-coming {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 48px 32px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.scanner-coming h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.scanner-coming p  { font-size: 13px; color: var(--text2); max-width: 380px; margin: 0 auto 20px; line-height: 1.6; }
+
+.coming-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--yel-dim);
+  border: 1px solid rgba(255,193,7,0.3);
+  color: var(--yellow);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.feature-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+
+.feature-card:hover { opacity: 0.8; }
+
+.feature-icon { font-size: 20px; margin-bottom: 8px; }
+.feature-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.feature-desc { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ── API ERROR BANNER ── */
+.api-banner {
+  display: none;
+  background: var(--red-dim);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      XPLOIT.DB
+    </div>
+    <div class="topbar-divider"></div>
+    <span class="topbar-tag">EXPLOIT INTELLIGENCE PLATFORM</span>
+    <div class="topbar-right">
+      <div class="status-chip" id="api-status">
+        <div class="dot yellow"></div>
+        CONNECTING...
+      </div>
+      <div class="status-chip" id="sync-status">
+        <div class="dot yellow"></div>
+        LOADING
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-group-label">Intelligence</div>
+
+    <div class="nav-item active" data-panel="dashboard" onclick="switchPanel(this)">
+      <div class="nav-dot"></div>
+      Dashboard
+    </div>
+    <div class="nav-item" data-panel="exploits" onclick="switchPanel(this)">
+      <div class="nav-dot"></div>
+      CVE Browser
+      <span class="nav-badge blue" id="badge-total">—</span>
+    </div>
+    <div class="nav-item" data-panel="critical" onclick="switchPanel(this)">
+      <div class="nav-dot"></div>
+      Critical CVEs
+      <span class="nav-badge red" id="badge-critical">—</span>
+    </div>
+    <div class="nav-item" data-panel="hotlist" onclick="switchPanel(this)">
+      <div class="nav-dot"></div>
+      🔥 Hotlist
+    </div>
+    <div class="nav-item" data-panel="kev" onclick="switchPanel(this)">
+      <div class="nav-dot"></div>
+      CISA KEV
+      <span class="nav-badge yellow" id="badge-kev">—</span>
+    </div>
+
+    <div class="nav-group-label">Tools</div>
+    <div class="nav-item" data-panel="scanner" onclick="switchPanel(this)">
+      <div class="nav-dot"></div>
+      Scanner
+      <span class="nav-badge yellow">SOON</span>
+    </div>
+
+    <div class="nav-group-label">Sources</div>
+    <div class="nav-item" style="cursor:default; pointer-events:none">
+      <div class="dot green" style="flex-shrink:0"></div>
+      NVD / NIST
+    </div>
+    <div class="nav-item" style="cursor:default; pointer-events:none; opacity:0.4">
+      <div class="dot" style="background:var(--border2);flex-shrink:0"></div>
+      Exploit-DB
+    </div>
+    <div class="nav-item" style="cursor:default; pointer-events:none; opacity:0.4">
+      <div class="dot" style="background:var(--border2);flex-shrink:0"></div>
+      GitHub PoCs
+    </div>
+    <div class="nav-item" style="cursor:default; pointer-events:none; opacity:0.4">
+      <div class="dot" style="background:var(--border2);flex-shrink:0"></div>
+      Metasploit
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sync-info" id="sidebar-sync">
+        Last sync: —<br>
+        DB: checking...
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Real-time vulnerability intelligence</div>
+        </div>
+        <button class="btn-action" onclick="loadAll()">↻ Refresh</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card c-red">
+          <div class="stat-label">Critical (30d)</div>
+          <div class="stat-val" id="s-critical">—</div>
+          <div class="stat-sub" id="s-critical-sub">Loading...</div>
+        </div>
+        <div class="stat-card c-orange">
+          <div class="stat-label">High (30d)</div>
+          <div class="stat-val" id="s-high">—</div>
+          <div class="stat-sub">From NVD feed</div>
+        </div>
+        <div class="stat-card c-purple" style="--c:var(--purple)">
+          <div class="stat-label">CISA KEV</div>
+          <div class="stat-val" id="s-kev">—</div>
+          <div class="stat-sub warn">Confirmed exploited</div>
+        </div>
+        <div class="stat-card c-blue">
+          <div class="stat-label">With Public Exploit</div>
+          <div class="stat-val" id="s-exploited">—</div>
+          <div class="stat-sub" id="s-exploited-pct">—</div>
+        </div>
+      </div>
+
+      <div class="section-lbl" style="margin-bottom:10px">🔥 Top Priority — Highest XPLOIT Score</div>
+
+      <div class="table-box">
+        <div class="table-head">
+          <span>CVE ID</span>
+          <span>Description</span>
+          <span>CVSS</span>
+          <span>Severity</span>
+          <span>Published</span>
+          <span>Actions</span>
+        </div>
+        <div class="table-body" id="dash-rows">
+          <div class="state-box"><div class="spinner"></div><div class="state-title">Connecting to API...</div><div class="state-sub">Make sure the backend is running on port 8000</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CVE BROWSER -->
+    <div class="panel" id="panel-exploits">
+      <div class="page-header">
+        <div>
+          <div class="page-title">CVE Browser</div>
+          <div class="page-sub">Full vulnerability database — sorted by XPLOIT score</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" type="text" placeholder="Search CVE ID, keyword, vendor..." id="cve-search" oninput="debounceSearch()">
+        </div>
+        <button class="filter-btn f-red" id="fb-CRITICAL" onclick="toggleFilter('CRITICAL')">🔴 Critical</button>
+        <button class="filter-btn f-ora" id="fb-HIGH" onclick="toggleFilter('HIGH')">🟠 High</button>
+        <button class="filter-btn f-yel" id="fb-MEDIUM" onclick="toggleFilter('MEDIUM')">🟡 Medium</button>
+        <button class="filter-btn f-grn" id="fb-exploit" onclick="toggleFilter('exploit')">⚡ Has Exploit</button>
+        <button class="filter-btn" id="fb-msf" onclick="toggleFilter('msf')">MSF</button>
+        <button class="btn-action" onclick="fetchCVEs(true)">↻</button>
+      </div>
+
+      <div class="table-box">
+        <div class="table-head">
+          <span>CVE ID</span>
+          <span>Description</span>
+          <span>CVSS</span>
+          <span>Severity</span>
+          <span>Published</span>
+          <span>Actions</span>
+        </div>
+        <div class="table-body" id="cve-rows">
+          <div class="state-box"><div class="spinner"></div><div class="state-title">Loading CVEs...</div></div>
+        </div>
+        <div class="pager" id="cve-pager" style="display:none">
+          <span id="pager-info">—</span>
+          <div class="pager-btns" id="pager-btns"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRITICAL -->
+    <div class="panel" id="panel-critical">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Critical CVEs</div>
+          <div class="page-sub">CVSS 9.0+ — last 30 days</div>
+        </div>
+      </div>
+      <div class="table-box">
+        <div class="table-head">
+          <span>CVE ID</span><span>Description</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span>
+        </div>
+        <div class="table-body" id="critical-rows">
+          <div class="state-box"><div class="spinner"></div><div class="state-title">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOTLIST -->
+    <div class="panel" id="panel-hotlist">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🔥 Hotlist</div>
+          <div class="page-sub">XPLOIT score ≥ 70 — patch these now</div>
+        </div>
+      </div>
+      <div class="table-box">
+        <div class="table-head">
+          <span>CVE ID</span><span>Description</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span>
+        </div>
+        <div class="table-body" id="hotlist-rows">
+          <div class="state-box"><div class="spinner"></div><div class="state-title">Loading hotlist...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEV -->
+    <div class="panel" id="panel-kev">
+      <div class="page-header">
+        <div>
+          <div class="page-title">CISA KEV Catalog</div>
+          <div class="page-sub">Confirmed exploited in the wild — highest priority</div>
+        </div>
+      </div>
+      <div class="table-box">
+        <div class="table-head">
+          <span>CVE ID</span><span>Description</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span>
+        </div>
+        <div class="table-body" id="kev-rows">
+          <div class="state-box"><div class="spinner"></div><div class="state-title">Loading KEV data...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCANNER -->
+    <div class="panel" id="panel-scanner">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Vulnerability Scanner</div>
+          <div class="page-sub">Active scanning module — Phase 2</div>
+        </div>
+      </div>
+      <div class="scanner-coming">
+        <div style="font-size:40px; margin-bottom:12px">🛰</div>
+        <h2>Scanner Module</h2>
+        <p>Scan targets, fingerprint services, and automatically match results against the exploit database. Generates prioritized reports with XPLOIT scores.</p>
+        <div class="coming-badge">⚡ In Development</div>
+      </div>
+      <div class="section-lbl" style="margin-bottom:10px">Planned Features</div>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="feature-icon">🔍</div><div class="feature-name">Port Scanner</div><div class="feature-desc">Enumerate open ports and identify running services via Nmap integration.</div></div>
+        <div class="feature-card"><div class="feature-icon">🎯</div><div class="feature-name">CVE Matcher</div><div class="feature-desc">Cross-reference detected versions against the full exploit database automatically.</div></div>
+        <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-name">PDF Reports</div><div class="feature-desc">Generate detailed reports with XPLOIT scores, affected hosts, and remediation steps.</div></div>
+        <div class="feature-card"><div class="feature-icon">🌐</div><div class="feature-name">Web App Scanner</div><div class="feature-desc">Detect SQLi, XSS, SSRF and common web vulnerabilities through active probing.</div></div>
+        <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-name">Real-time Alerts</div><div class="feature-desc">Get notified when new critical CVEs match services in your infrastructure.</div></div>
+        <div class="feature-card"><div class="feature-icon">🔗</div><div class="feature-name">API & CI/CD</div><div class="feature-desc">REST API to integrate scan results into pipelines, SIEMs, and ticketing systems.</div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal" id="modal">
+    <div class="modal-top">
+      <div style="flex:1; min-width:0;">
+        <div class="modal-cve-id" id="m-id">—</div>
+        <div class="modal-title" id="m-title">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="meta-grid">
+        <div class="meta-card"><div class="meta-lbl">CVSS Score</div><div class="meta-val" id="m-cvss">—</div></div>
+        <div class="meta-card"><div class="meta-lbl">Severity</div><div class="meta-val" id="m-sev">—</div></div>
+        <div class="meta-card"><div class="meta-lbl">XPLOIT Score</div><div class="meta-val" id="m-xscore">—</div></div>
+        <div class="meta-card"><div class="meta-lbl">EPSS</div><div class="meta-val" id="m-epss">—</div></div>
+        <div class="meta-card"><div class="meta-lbl">Published</div><div class="meta-val" id="m-pub">—</div></div>
+        <div class="meta-card"><div class="meta-lbl">CISA KEV</div><div class="meta-val" id="m-kev">—</div></div>
+      </div>
+      <div class="section-lbl">Description</div>
+      <div class="desc-box" id="m-desc">—</div>
+      <div id="m-exploits-section" style="display:none">
+        <div class="section-lbl">Public Exploits</div>
+        <div class="exploit-cards" id="m-exploits"></div>
+      </div>
+      <div class="section-lbl">References</div>
+      <ul class="refs-list" id="m-refs"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const API = '';  // empty = same origin (goes through nginx proxy to :8000)
+// If running frontend separately: const API = 'http://localhost:8000';
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let cveCache = [];
+let filteredCVEs = [];
+let currentPage = 0;
+const PAGE = 20;
+let activeFilters = new Set();
+let searchTimer = null;
+let apiOnline = false;
+
+// ── API HELPERS ───────────────────────────────────────────────────────────────
+async function apiFetch(path, params = {}) {
+  const qs = new URLSearchParams(params).toString();
+  const url = `${API}${path}${qs ? '?' + qs : ''}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+async function checkAPI() {
+  try {
+    await apiFetch('/health');
+    apiOnline = true;
+    setStatus('api-status', 'green', 'API ONLINE');
+    loadAll();
+  } catch {
+    apiOnline = false;
+    setStatus('api-status', 'red', 'API OFFLINE');
+    setRows('dash-rows', errHTML('Cannot reach API at localhost:8000.<br>Run: <code>sudo docker compose up -d</code>'));
+  }
+}
+
+function setStatus(id, color, text) {
+  const el = document.getElementById(id);
+  el.querySelector('.dot').className = `dot ${color}`;
+  el.childNodes[1].textContent = ' ' + text;
+  el.lastChild.textContent = text;
+  el.innerHTML = `<div class="dot ${color}"></div> ${text}`;
+}
+
+async function loadAll() {
+  checkAPI();
+  loadStats();
+  loadDashboard();
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const d = await apiFetch('/api/v1/stats/summary');
+    const t = d.totals || {};
+    const l30 = d.last_30_days || {};
+
+    setText('s-critical', l30.critical ?? '—');
+    setText('s-high', l30.high ?? '—');
+    setText('s-kev', t.kev ?? '—');
+    setText('s-exploited', t.cves_with_exploit ?? '—');
+    setText('s-exploited-pct', (t.exploit_coverage_pct ?? '—') + '% coverage');
+    setText('badge-total', t.cves ?? '—');
+    setText('badge-critical', l30.critical ?? '—');
+    setText('badge-kev', t.kev ?? '—');
+
+    // Sidebar sync info
+    const syncs = d.last_syncs || {};
+    const lastSync = Object.values(syncs).filter(Boolean).sort().pop();
+    setText('sidebar-sync',
+      `Last sync: ${lastSync ? fmtDate(lastSync) : 'never'}\nDB: ${(t.cves||0).toLocaleString()} CVEs`
+    );
+
+    setStatus('sync-status', 'green', `${(t.cves||0).toLocaleString()} CVEs`);
+  } catch(e) {
+    setStatus('sync-status', 'red', 'STATS ERROR');
+  }
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  setRows('dash-rows', loadingHTML());
+  try {
+    const d = await apiFetch('/api/v1/cves/', {
+      sort: 'xploit_score', order: 'desc', size: 15, page: 1
+    });
+    renderRows('dash-rows', d.data || []);
+  } catch(e) {
+    // Fallback: try NVD directly
+    loadDashboardFallback();
+  }
+}
+
+async function loadDashboardFallback() {
+  try {
+    const now = new Date();
+    const ago = new Date(now - 30*86400000);
+    const res = await fetch(`https://services.nvd.nist.gov/rest/json/cves/2.0?pubStartDate=${ago.toISOString().replace('Z','+00:00')}&pubEndDate=${now.toISOString().replace('Z','+00:00')}&resultsPerPage=15`);
+    const data = await res.json();
+    const cves = (data.vulnerabilities || []).map(v => nvdToLocal(v.cve));
+    renderRows('dash-rows', cves);
+    setStatus('sync-status', 'yellow', 'NVD FALLBACK');
+  } catch(e) {
+    setRows('dash-rows', errHTML('Could not load data. Check that the backend is running.'));
+  }
+}
+
+// ── CVE BROWSER ───────────────────────────────────────────────────────────────
+async function fetchCVEs(reset = false) {
+  if (reset) currentPage = 0;
+  setRows('cve-rows', loadingHTML());
+
+  const params = { sort: 'xploit_score', order: 'desc', size: PAGE, page: currentPage + 1 };
+  const q = document.getElementById('cve-search').value.trim();
+
+  if (activeFilters.has('CRITICAL')) params.severity = 'CRITICAL';
+  else if (activeFilters.has('HIGH'))   params.severity = 'HIGH';
+  else if (activeFilters.has('MEDIUM')) params.severity = 'MEDIUM';
+  if (activeFilters.has('exploit')) params.has_exploit = 'true';
+  if (activeFilters.has('msf'))     params.has_metasploit = 'true';
+
+  try {
+    let data;
+    if (q) {
+      data = await apiFetch('/api/v1/search/', { q, page: currentPage + 1, size: PAGE });
+    } else {
+      data = await apiFetch('/api/v1/cves/', params);
+    }
+
+    cveCache = data.data || [];
+    renderRows('cve-rows', cveCache);
+
+    // Pagination
+    const total = data.total || 0;
+    const pages = data.pages || 1;
+    document.getElementById('cve-pager').style.display = 'flex';
+    setText('pager-info', `${(currentPage * PAGE) + 1}–${Math.min((currentPage+1)*PAGE, total)} of ${total.toLocaleString()}`);
+    renderPager(pages);
+  } catch(e) {
+    setRows('cve-rows', errHTML('API error: ' + e.message));
+  }
+}
+
+function renderPager(totalPages) {
+  const btns = document.getElementById('pager-btns');
+  let html = `<button class="pager-btn" onclick="goPage(${currentPage-1})" ${currentPage===0?'disabled':''}>← Prev</button>`;
+  for (let i = 0; i < totalPages && i < 8; i++) {
+    html += `<button class="pager-btn ${i===currentPage?'on':''}" onclick="goPage(${i})">${i+1}</button>`;
+  }
+  if (totalPages > 8) html += `<span style="color:var(--text3);padding:0 4px">…</span>`;
+  html += `<button class="pager-btn" onclick="goPage(${currentPage+1})" ${currentPage>=totalPages-1?'disabled':''}>Next →</button>`;
+  btns.innerHTML = html;
+}
+
+function goPage(n) {
+  if (n < 0) return;
+  currentPage = n;
+  fetchCVEs();
+  document.getElementById('panel-exploits').scrollTop = 0;
+}
+
+// ── CRITICAL / KEV / HOTLIST ──────────────────────────────────────────────────
+async function loadCritical() {
+  setRows('critical-rows', loadingHTML());
+  try {
+    const d = await apiFetch('/api/v1/cves/', { severity: 'CRITICAL', sort: 'xploit_score', order: 'desc', size: 50, page: 1 });
+    renderRows('critical-rows', d.data || []);
+  } catch(e) { setRows('critical-rows', errHTML(e.message)); }
+}
+
+async function loadKEV() {
+  setRows('kev-rows', loadingHTML());
+  try {
+    const d = await apiFetch('/api/v1/cves/', { kev_only: 'true', sort: 'xploit_score', order: 'desc', size: 50, page: 1 });
+    renderRows('kev-rows', d.data || []);
+  } catch(e) { setRows('kev-rows', errHTML(e.message)); }
+}
+
+async function loadHotlist() {
+  setRows('hotlist-rows', loadingHTML());
+  try {
+    const d = await apiFetch('/api/v1/feed/hotlist');
+    if (d.data && d.data.length > 0) {
+      renderRows('hotlist-rows', d.data);
+    } else {
+      // fallback to high xploit score
+      const d2 = await apiFetch('/api/v1/cves/', { min_xploit: '50', sort: 'xploit_score', order: 'desc', size: 25, page: 1 });
+      renderRows('hotlist-rows', d2.data || []);
+    }
+  } catch(e) { setRows('hotlist-rows', errHTML(e.message)); }
+}
+
+// ── RENDER ROWS ───────────────────────────────────────────────────────────────
+function renderRows(containerId, cves) {
+  if (!cves.length) {
+    setRows(containerId, `<div class="state-box"><div style="font-size:28px;opacity:0.3">📭</div><div class="state-title">No results</div><div class="state-sub">Try adjusting filters or wait for data sync to complete.</div></div>`);
+    return;
+  }
+  document.getElementById(containerId).innerHTML = cves.map(buildRow).join('');
+}
+
+function buildRow(c) {
+  const score = c.cvss_score || c.cvss_v31_score;
+  const cls   = cvssClass(score);
+  const sev   = c.severity || 'UNKNOWN';
+  const xs    = c.xploit_score || 0;
+  const xsColor = xs >= 70 ? 'var(--red)' : xs >= 40 ? 'var(--orange)' : xs >= 20 ? 'var(--yellow)' : 'var(--text3)';
+  const desc  = (c.description || 'No description available').substring(0, 110);
+
+  const tags = [];
+  if (c.kev) tags.push(`<span class="tag-pill kev">KEV</span>`);
+  if (c.exploit_sources?.metasploit || c.has_metasploit) tags.push(`<span class="tag-pill msf">MSF</span>`);
+  if (c.exploit_sources?.nuclei || c.has_nuclei) tags.push(`<span class="tag-pill nuc">NUC</span>`);
+  if (c.exploit_sources?.github_poc || c.has_github_poc) tags.push(`<span class="tag-pill poc">PoC</span>`);
+  if (c.exploit_sources?.exploitdb || c.has_exploitdb) tags.push(`<span class="tag-pill edb">EDB</span>`);
+
+  return `<div class="cve-row" onclick="openModal('${c.id}')">
+    <span class="cve-id-cell">${c.id}</span>
+    <span class="cve-desc" title="${(c.description||'').replace(/"/g,"'")}">${desc}${c.description?.length > 110 ? '…' : ''}</span>
+    <span><span class="cvss ${cls}">${score ?? 'N/A'}</span></span>
+    <span><span class="sev ${sev}">${sev}</span></span>
+    <span class="date-cell">${fmtDate(c.published_at)}</span>
+    <span class="row-actions">${tags.join('')}<button class="mini-btn" onclick="event.stopPropagation();window.open('https://nvd.nist.gov/vuln/detail/${c.id}','_blank')">↗</button></span>
+  </div>`;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+async function openModal(cveId) {
+  document.getElementById('overlay').classList.add('open');
+  setText('m-id', cveId);
+  setText('m-title', 'Loading...');
+  setText('m-cvss', '—'); setText('m-sev', '—'); setText('m-xscore', '—');
+  setText('m-epss', '—'); setText('m-pub', '—'); setText('m-kev', '—');
+  setText('m-desc', 'Loading...');
+  document.getElementById('m-refs').innerHTML = '';
+  document.getElementById('m-exploits-section').style.display = 'none';
+
+  try {
+    const c = await apiFetch(`/api/v1/cves/${cveId}`);
+    const score = c.cvss_score || c.cvss_v31_score;
+
+    setText('m-title', c.description?.substring(0, 140) || 'No description');
+    setText('m-cvss', score ?? 'N/A');
+    document.getElementById('m-sev').innerHTML = `<span class="sev ${c.severity}">${c.severity || 'UNKNOWN'}</span>`;
+    setText('m-xscore', (c.xploit_score ?? '—') + '/100');
+    setText('m-epss', c.epss_score ? (c.epss_score * 100).toFixed(1) + '%' : '—');
+    setText('m-pub', fmtDate(c.published_at));
+    document.getElementById('m-kev').innerHTML = c.kev
+      ? `<span style="color:var(--purple);font-weight:700">✓ YES</span>`
+      : `<span style="color:var(--text3)">No</span>`;
+    setText('m-desc', c.description || 'No description available.');
+
+    // Exploits
+    if (c.exploits && c.exploits.length > 0) {
+      document.getElementById('m-exploits-section').style.display = 'block';
+      document.getElementById('m-exploits').innerHTML = c.exploits.slice(0, 8).map(e => {
+        const srcCls = {exploitdb:'src-edb', github_poc:'src-gh', metasploit:'src-msf', nuclei:'src-nuc', packetstorm:'src-ps'}[e.source] || 'src-edb';
+        const stars = e.github_stars ? ` ⭐${e.github_stars}` : '';
+        return `<div class="exploit-card">
+          <span class="exploit-card-src ${srcCls}">${e.source?.replace('_',' ').toUpperCase()}</span>
+          <span class="exploit-card-title">${e.title || 'No title'}${stars}</span>
+          ${e.source_url ? `<a class="exploit-card-link" href="${e.source_url}" target="_blank" rel="noopener">View →</a>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    // References
+    const refs = c.references || [];
+    document.getElementById('m-refs').innerHTML = refs.length
+      ? refs.slice(0, 8).map(r => `<li><a href="${r.url}" target="_blank" rel="noopener">${r.url}</a></li>`).join('')
+      : '<li style="color:var(--text3)">No references.</li>';
+
+  } catch(e) {
+    // Fallback to NVD
+    try {
+      const res = await fetch(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${cveId}`);
+      const data = await res.json();
+      const cve = data.vulnerabilities?.[0]?.cve;
+      if (cve) {
+        const c = nvdToLocal(cve);
+        setText('m-title', c.description?.substring(0, 140) || 'No description');
+        setText('m-cvss', c.cvss_score ?? 'N/A');
+        document.getElementById('m-sev').innerHTML = `<span class="sev ${c.severity}">${c.severity}</span>`;
+        setText('m-desc', c.description || '—');
+        setText('m-pub', fmtDate(c.published_at));
+        document.getElementById('m-refs').innerHTML = (cve.references||[]).slice(0,6).map(r => `<li><a href="${r.url}" target="_blank">${r.url}</a></li>`).join('');
+      }
+    } catch { setText('m-desc', 'Failed to load CVE details.'); }
+  }
+}
+
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function closeOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function toggleFilter(f) {
+  if (activeFilters.has(f)) activeFilters.delete(f);
+  else activeFilters.add(f);
+  document.getElementById('fb-' + f)?.classList.toggle('active', activeFilters.has(f));
+  currentPage = 0;
+  fetchCVEs();
+}
+
+function debounceSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { currentPage = 0; fetchCVEs(); }, 350);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function switchPanel(el) {
+  const name = el.dataset.panel;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+
+  // Lazy load panels
+  if (name === 'exploits' && !cveCache.length) fetchCVEs();
+  if (name === 'critical') loadCritical();
+  if (name === 'hotlist')  loadHotlist();
+  if (name === 'kev')      loadKEV();
+}
+
+// ── NVD FALLBACK PARSER ───────────────────────────────────────────────────────
+function nvdToLocal(cve) {
+  const desc = cve.descriptions?.find(d => d.lang === 'en')?.value || '';
+  const m = cve.metrics || {};
+  const v31 = m.cvssMetricV31?.[0]?.cvssData;
+  const v30 = m.cvssMetricV30?.[0]?.cvssData;
+  const v2  = m.cvssMetricV2?.[0]?.cvssData;
+  const cvssData = v31 || v30 || v2;
+  const score = cvssData?.baseScore;
+  const severity = score >= 9 ? 'CRITICAL' : score >= 7 ? 'HIGH' : score >= 4 ? 'MEDIUM' : score > 0 ? 'LOW' : 'UNKNOWN';
+  return { id: cve.id, description: desc, cvss_score: score, severity, published_at: cve.published, xploit_score: 0, kev: false };
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function cvssClass(score) {
+  if (!score) return 'na';
+  if (score >= 9) return 'crit';
+  if (score >= 7) return 'high';
+  if (score >= 4) return 'med';
+  return 'low';
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  } catch { return iso.substring(0, 10); }
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function setRows(id, html) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+}
+
+function loadingHTML(msg = 'Loading...') {
+  return `<div class="state-box"><div class="spinner"></div><div class="state-title">${msg}</div></div>`;
+}
+
+function errHTML(msg) {
+  return `<div class="state-box"><div style="font-size:28px;opacity:0.4">⚠️</div><div class="state-title">Error</div><div class="state-sub">${msg}</div><button class="btn-action" style="margin-top:12px" onclick="loadAll()">↻ Retry</button></div>`;
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+checkAPI();
+</script>
+</body>
+</html>
