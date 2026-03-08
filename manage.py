@@ -90,15 +90,22 @@ async def sync_packetstorm():
 
 
 async def sync_all():
-    """Run all enrichment sources in sequence."""
+    """Run all enrichment sources — failures are logged but non-fatal."""
     logger.info("🔄 Running all enrichment syncs...")
-    await sync_kev()
-    await sync_epss()
-    await sync_exploitdb()
-    await sync_github()
-    await sync_metasploit()
-    await sync_nuclei()
-    await sync_packetstorm()
+    jobs = [
+        ("kev",         sync_kev),
+        ("epss",        sync_epss),
+        ("exploitdb",   sync_exploitdb),
+        ("github",      sync_github),
+        ("metasploit",  sync_metasploit),
+        ("nuclei",      sync_nuclei),
+        ("packetstorm", sync_packetstorm),
+    ]
+    for name, fn in jobs:
+        try:
+            await fn()
+        except Exception as e:
+            logger.error(f"⚠️  {name} failed (skipping): {e}")
     logger.info("✅ All syncs complete")
 
 

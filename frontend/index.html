@@ -1096,7 +1096,7 @@ body {
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const API = '';  // empty = same origin (goes through nginx proxy to :8000)
+const API = 'http://192.168.73.130:8000';  // empty = same origin (goes through nginx proxy to :8000)
 // If running frontend separately: const API = 'http://localhost:8000';
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -1140,7 +1140,6 @@ function setStatus(id, color, text) {
 }
 
 async function loadAll() {
-  checkAPI();
   loadStats();
   loadDashboard();
 }

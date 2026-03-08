@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     EPSS_CSV_URL: str = "https://epss.empiricalsecurity.com/epss_scores-{date}.csv.gz"
 
     # ── Exploit-DB ───────────────────────────────────────────────────────────
-    EXPLOITDB_CSV_URL: str = "https://github.com/offensive-security/exploit-database/raw/master/files_exploits.csv"
+    EXPLOITDB_CSV_URL: str = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/files_exploits.csv"
     EXPLOITDB_BASE_URL: str = "https://www.exploit-db.com/exploits"
     EXPLOITDB_RAW_URL: str = "https://github.com/offensive-security/exploit-database/raw/master/exploits"
 
