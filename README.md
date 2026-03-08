@@ -14,7 +14,6 @@ Most CVE tools show you **severity**. XPLOIT.DB shows you **exploitability**.
 | Feature | NVD | Shodan | CVEDetails | **XPLOIT.DB** |
 |---|---|---|---|---|
 | CVE data | ✅ | ✅ | ✅ | ✅ |
-| EPSS scores | ❌ | ❌ | ❌ | ✅ |
 | CISA KEV tags | ❌ | ❌ | partial | ✅ |
 | GitHub PoC links | ❌ | ❌ | partial | ✅ |
 | Metasploit mapping | ❌ | ❌ | partial | ✅ |
