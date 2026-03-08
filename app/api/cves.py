@@ -113,7 +113,20 @@ async def list_cves(
         "modified_at":  CVE.modified_at,
     }
     sort_col = sort_field_map.get(sort, CVE.published_at)
-    order_fn = desc if order.lower() == "desc" else asc
+    
+    # Handle NULL values differently based on field type
+    if sort in ["cvss_score", "xploit_score", "epss_score"]:
+        # For score fields: NULL = lowest priority
+        if order.lower() == "desc":
+            sort_col = sort_col.desc().nulls_last()
+        else:
+            sort_col = sort_col.asc().nulls_first()
+    else:
+        # For date fields: NULL dates always come last
+        if order.lower() == "desc":
+            sort_col = sort_col.desc().nulls_last()
+        else:
+            sort_col = sort_col.asc().nulls_last()
 
     # Total count
     count_q = select(func.count(CVE.id))
@@ -122,7 +135,7 @@ async def list_cves(
     total = (await db.execute(count_q)).scalar_one()
 
     # Data query
-    q = select(CVE).where(and_(*filters)).order_by(order_fn(sort_col)).offset((page - 1) * size).limit(size)
+    q = select(CVE).where(and_(*filters)).order_by(sort_col).offset((page - 1) * size).limit(size)
     rows = (await db.execute(q)).scalars().all()
 
     return {

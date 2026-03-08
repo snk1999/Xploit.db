@@ -153,6 +153,49 @@ def _build_cve_record(vuln_data: dict) -> dict:
     }
 
 
+def _is_rejected_cve(description: Optional[str]) -> bool:
+    """
+    Check if a CVE should be rejected based on its description containing
+    specific rejection strings.
+    """
+    if not description:
+        return False
+
+    rejected_patterns = [
+        "Rejected reason: This CVE ID was rejected because it was reserved but not used for a vulnerability disclosure.",
+        "Rejected reason: ** REJECT ** DO NOT USE THIS CVE RECORD. ConsultIDs: none. Reason: This record was in a CNA pool that was not assigned to any issues during",
+        "Rejected reason: Not used"
+    ]
+
+    return any(pattern in description for pattern in rejected_patterns)
+
+
+async def _cleanup_rejected_cves():
+    """
+    Remove any CVEs from the database that contain rejection strings in their descriptions.
+    This cleans up CVEs that were ingested before the rejection filtering was implemented.
+    """
+    from sqlalchemy import delete
+
+    async with AsyncSessionLocal() as db:
+        # Get all CVEs
+        result = await db.execute(select(CVE))
+        cves = result.scalars().all()
+
+        rejected_ids = []
+        for cve in cves:
+            if _is_rejected_cve(cve.description):
+                rejected_ids.append(cve.id)
+
+        if rejected_ids:
+            # Delete rejected CVEs
+            await db.execute(delete(CVE).where(CVE.id.in_(rejected_ids)))
+            await db.commit()
+            logger.info(f"Cleaned up {len(rejected_ids)} rejected CVEs: {rejected_ids}")
+        else:
+            logger.debug("No rejected CVEs found to clean up")
+
+
 # ─── NVD Fetch ───────────────────────────────────────────────────────────────
 
 async def _fetch_nvd_page(
@@ -304,8 +347,10 @@ async def sync_nvd(full: bool = False, days_back: int = 2) -> dict:
                 for v in vulns:
                     try:
                         rec = _build_cve_record(v)
-                        if rec.get("id"):
+                        if rec.get("id") and not _is_rejected_cve(rec.get("description")):
                             records.append(rec)
+                        elif rec.get("id") and _is_rejected_cve(rec.get("description")):
+                            logger.debug(f"Skipping rejected CVE: {rec['id']}")
                     except Exception as e:
                         logger.warning(f"Parse error: {e}")
 
@@ -320,6 +365,9 @@ async def sync_nvd(full: bool = False, days_back: int = 2) -> dict:
 
         # Recompute xploit scores
         await _recompute_scores()
+
+        # Clean up any rejected CVEs that may have been previously ingested
+        await _cleanup_rejected_cves()
 
         # Update sync log
         duration = (datetime.now(timezone.utc) - log_start).total_seconds()

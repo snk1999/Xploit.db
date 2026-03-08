@@ -14,6 +14,7 @@ Usage:
   python manage.py sync-nuclei      # Sync Nuclei templates
   python manage.py sync-packetstorm # Sync PacketStorm RSS
   python manage.py sync-all         # Run all enrichment syncs
+  python manage.py cleanup-rejected # Remove rejected CVEs from database
   python manage.py stats            # Print database statistics
 """
 
@@ -109,27 +110,11 @@ async def sync_all():
     logger.info("✅ All syncs complete")
 
 
-async def print_stats():
-    from app.core.database import AsyncSessionLocal
-    from app.models.models import CVE, Exploit, SyncLog
-    from sqlalchemy import select, func
-
-    async with AsyncSessionLocal() as db:
-        total_cves     = (await db.execute(select(func.count(CVE.id)))).scalar_one()
-        total_exploits = (await db.execute(select(func.count(Exploit.id)))).scalar_one()
-        kev_count      = (await db.execute(select(func.count(CVE.id)).where(CVE.kev == True))).scalar_one()
-        exploit_cves   = (await db.execute(select(func.count(CVE.id)).where(CVE.has_any_exploit == True))).scalar_one()
-        msf_cves       = (await db.execute(select(func.count(CVE.id)).where(CVE.has_metasploit == True))).scalar_one()
-
-    print("\n" + "═" * 50)
-    print("  XPLOIT.DB — Database Statistics")
-    print("═" * 50)
-    print(f"  Total CVEs:           {total_cves:,}")
-    print(f"  Total Exploits:       {total_exploits:,}")
-    print(f"  CVEs with KEV:        {kev_count:,}")
-    print(f"  CVEs with exploit:    {exploit_cves:,}  ({exploit_cves/max(total_cves,1)*100:.1f}%)")
-    print(f"  CVEs with MSF module: {msf_cves:,}")
-    print("═" * 50 + "\n")
+async def cleanup_rejected():
+    """Remove CVEs with rejection strings from the database."""
+    from app.ingestion.nvd import _cleanup_rejected_cves
+    await _cleanup_rejected_cves()
+    logger.info("Rejected CVE cleanup complete")
 
 
 COMMANDS = {
@@ -144,6 +129,7 @@ COMMANDS = {
     "sync-nuclei":     sync_nuclei,
     "sync-packetstorm":sync_packetstorm,
     "sync-all":        sync_all,
+    "cleanup-rejected": cleanup_rejected,
     "stats":           print_stats,
 }
 

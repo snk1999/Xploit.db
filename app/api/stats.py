@@ -24,7 +24,7 @@ async def get_summary(db: AsyncSession = Depends(get_db)):
     nuclei_count      = await count(select(func.count(CVE.id)).where(CVE.has_nuclei == True))
     sev_rows = (await db.execute(select(CVE.severity, func.count(CVE.id)).group_by(CVE.severity))).fetchall()
     severity_breakdown = {row[0].value if row[0] else "UNKNOWN": row[1] for row in sev_rows}
-    top_cves = (await db.execute(select(CVE).order_by(desc(CVE.xploit_score)).limit(5))).scalars().all()
+    top_cves = (await db.execute(select(CVE).order_by(CVE.xploit_score.desc().nulls_last()).limit(5))).scalars().all()
     sync_rows = (await db.execute(select(SyncLog.source, func.max(SyncLog.finished_at)).where(SyncLog.status == "success").group_by(SyncLog.source))).fetchall()
     last_syncs = {row[0]: row[1].isoformat() if row[1] else None for row in sync_rows}
     return {

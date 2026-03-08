@@ -23,10 +23,10 @@ async def latest_feed(
     if severity: filters.append(CVE.severity.in_([s.strip().upper() for s in severity.split(",")]))
     if exploit_only: filters.append(CVE.has_any_exploit == True)
     if kev_only: filters.append(CVE.kev == True)
-    rows = (await db.execute(select(CVE).where(and_(*filters)).order_by(desc(CVE.xploit_score)).limit(size))).scalars().all()
+    rows = (await db.execute(select(CVE).where(and_(*filters)).order_by(CVE.cvss_score.desc().nulls_last()).limit(size))).scalars().all()
     return {"window_hours": hours, "count": len(rows), "generated_at": datetime.now(timezone.utc).isoformat(), "data": [_serialize_cve(r) for r in rows]}
 
 @router.get("/hotlist")
 async def hotlist(db: AsyncSession = Depends(get_db)):
-    rows = (await db.execute(select(CVE).where(CVE.xploit_score >= 70).order_by(desc(CVE.xploit_score)).limit(25))).scalars().all()
+    rows = (await db.execute(select(CVE).where(CVE.xploit_score >= 70).order_by(CVE.xploit_score.desc().nulls_last()).limit(25))).scalars().all()
     return {"title": "XPLOIT.DB Hotlist", "count": len(rows), "generated_at": datetime.now(timezone.utc).isoformat(), "data": [_serialize_cve(r) for r in rows]}

@@ -117,9 +117,9 @@ body { background:var(--bg); color:var(--text); font-family:var(--font-ui); font
 
 /* ── TABLE ── */
 .table-box { background:var(--s1); border:1px solid var(--border); border-radius:9px; overflow:hidden; }
-.table-head { display:grid; grid-template-columns:148px 1fr 90px 72px 90px 100px 130px; padding:8px 14px; background:var(--s2); border-bottom:1px solid var(--border); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text3); font-family:var(--font-ui); }
+.table-head { display:grid; grid-template-columns:148px 1fr 72px 90px 100px 130px; padding:8px 14px; background:var(--s2); border-bottom:1px solid var(--border); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text3); font-family:var(--font-ui); }
 .table-body { max-height:calc(100vh - 310px); overflow-y:auto; }
-.cve-row { display:grid; grid-template-columns:148px 1fr 90px 72px 90px 100px 130px; padding:9px 14px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; align-items:center; }
+.cve-row { display:grid; grid-template-columns:148px 1fr 72px 90px 100px 130px; padding:9px 14px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.1s; align-items:center; }
 .cve-row:last-child { border-bottom:none; }
 .cve-row:hover { background:rgba(88,166,255,0.04); }
 .cve-id-cell { font-family:var(--font-mono); font-size:11.5px; font-weight:500; color:var(--blue); }
@@ -380,9 +380,9 @@ body { background:var(--bg); color:var(--text); font-family:var(--font-ui); font
     <div class="stat-card c-blue"><div class="stat-label">Public Exploits</div><div class="stat-val" id="s-exploited">—</div><div class="stat-sub" id="s-exploited-pct">—</div></div>
     <div class="stat-card c-green"><div class="stat-label">GitHub Advisories</div><div class="stat-val" id="s-ghsa">—</div><div class="stat-sub">Package-level vulns</div></div>
   </div>
-  <div class="section-lbl" style="margin-bottom:10px">🔥 Top Priority — Highest XPLOIT Score</div>
+  <div class="section-lbl" style="margin-bottom:10px">🔥 Top Priority — Highest CVSS Score</div>
   <div class="table-box">
-    <div class="table-head"><span>CVE ID</span><span>Description</span><span>Score</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span></div>
+    <div class="table-head"><span>CVE ID</span><span>Description</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span></div>
     <div class="table-body" id="dash-rows"><div class="state-box"><div class="spinner"></div><div class="state-title">Connecting to API...</div></div></div>
   </div>
 </div>
@@ -390,7 +390,7 @@ body { background:var(--bg); color:var(--text); font-family:var(--font-ui); font
 <!-- ── CVE BROWSER ── -->
 <div class="panel" id="panel-browser">
   <div class="page-header">
-    <div><div class="page-title">CVE Browser</div><div class="page-sub">Full database — sorted by XPLOIT score</div></div>
+    <div><div class="page-title">CVE Browser</div><div class="page-sub">Full database — sorted by CVSS score</div></div>
   </div>
   <div class="toolbar">
     <div class="search-wrap">
@@ -419,7 +419,6 @@ body { background:var(--bg); color:var(--text); font-family:var(--font-ui); font
   <div class="table-box">
     <div class="table-head">
       <span>CVE ID</span><span>Description</span>
-      <span class="sortable-col" onclick="setSort('xploit_score')" id="col-xploit_score" title="Sort by XPLOIT Score">Score ↕</span>
       <span class="sortable-col" onclick="setSort('cvss_score')" id="col-cvss_score" title="Sort by CVSS">CVSS ↕</span>
       <span>Severity</span>
       <span class="sortable-col" onclick="setSort('published_at')" id="col-published_at" title="Sort by date">Published ↕</span>
@@ -437,7 +436,7 @@ body { background:var(--bg); color:var(--text); font-family:var(--font-ui); font
 <div class="panel" id="panel-critical">
   <div class="page-header"><div><div class="page-title">Critical CVEs</div><div class="page-sub">CVSS 9.0+ vulnerabilities</div></div></div>
   <div class="table-box">
-    <div class="table-head"><span>CVE ID</span><span>Description</span><span>Score</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span></div>
+    <div class="table-head"><span>CVE ID</span><span>Description</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span></div>
     <div class="table-body" id="critical-rows"><div class="state-box"><div class="spinner"></div></div></div>
     <div class="pager" id="critical-pager" style="display:none">
       <span id="critical-pager-info">—</span>
@@ -450,7 +449,7 @@ body { background:var(--bg); color:var(--text); font-family:var(--font-ui); font
 <div class="panel" id="panel-kev">
   <div class="page-header"><div><div class="page-title">CISA KEV Catalog</div><div class="page-sub">Confirmed exploited in the wild</div></div></div>
   <div class="table-box">
-    <div class="table-head"><span>CVE ID</span><span>Description</span><span>Score</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span></div>
+    <div class="table-head"><span>CVE ID</span><span>Description</span><span>CVSS</span><span>Severity</span><span>Published</span><span>Actions</span></div>
     <div class="table-body" id="kev-rows"><div class="state-box"><div class="spinner"></div></div></div>
     <div class="pager" id="kev-pager" style="display:none">
       <span id="kev-pager-info">—</span>
@@ -633,7 +632,7 @@ const API = '';  // same origin via nginx proxy
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let cveCache    = [];
 let currentPage = 0;
-let currentSort = 'xploit_score';
+let currentSort = 'published_at';
 let currentOrder= 'desc';
 const PAGE      = 20;
 let activeFilters = new Set();
@@ -823,7 +822,7 @@ function applyGHSACount(t) {
 async function loadDashboard() {
   setRows('dash-rows', loadingHTML());
   try {
-    const d = await apiFetch('/api/v1/cves/', { sort:'xploit_score', order:'desc', size:15, page:1 });
+    const d = await apiFetch('/api/v1/cves/', { sort:'cvss_score', order:'desc', size:15, page:1 });
     renderRows('dash-rows', d.data || []);
   } catch { loadDashboardFallback(); }
 }
@@ -855,9 +854,9 @@ async function fetchCVEs(reset = false) {
     let data;
     if (activeVendor) {
       const searchQ = q ? `${q} ${activeVendor}` : activeVendor;
-      data = await apiFetch('/api/v1/search/', { q: searchQ, page: currentPage+1, size: PAGE });
+      data = await apiFetch('/api/v1/search/', { q: searchQ, sort: currentSort, order: currentOrder, page: currentPage+1, size: PAGE });
     } else if (q) {
-      data = await apiFetch('/api/v1/search/', { q, page: currentPage+1, size: PAGE });
+      data = await apiFetch('/api/v1/search/', { q, sort: currentSort, order: currentOrder, page: currentPage+1, size: PAGE });
     } else {
       const params = { sort: currentSort, order: currentOrder, size: PAGE, page: currentPage+1 };
       if (activeFilters.has('CRITICAL'))    params.severity    = 'CRITICAL';
@@ -901,7 +900,7 @@ async function buildVendorList() {
     if (v.vendors)          { vendorList = v.vendors.sort(); return; }
   } catch {}
   try {
-    const d = await apiFetch('/api/v1/cves/', { sort:'xploit_score', order:'desc', size:200, page:1 });
+    const d = await apiFetch('/api/v1/cves/', { sort:'cvss_score', order:'desc', size:200, page:1 });
     const vendors = new Set();
     (d.data || []).forEach(c => {
       (c.affected_products || []).forEach(p => { if (p.vendor) vendors.add(p.vendor); });
@@ -952,7 +951,7 @@ function closeVendorDD() { document.getElementById('vendor-dropdown').classList.
 async function loadCritical() {
   setRows('critical-rows', loadingHTML());
   try {
-    const d = await apiFetch('/api/v1/cves/', { severity:'CRITICAL', sort:'xploit_score', order:'desc', size:SUBPAGE, page: criticalPage+1 });
+    const d = await apiFetch('/api/v1/cves/', { severity:'CRITICAL', sort:'cvss_score', order:'desc', size:SUBPAGE, page: criticalPage+1 });
     renderRows('critical-rows', d.data || []);
     const total = d.total || 0, pages = d.pages || 1;
     document.getElementById('critical-pager').style.display = 'flex';
@@ -964,7 +963,7 @@ async function loadCritical() {
 async function loadKEV() {
   setRows('kev-rows', loadingHTML());
   try {
-    const d = await apiFetch('/api/v1/cves/', { kev_only:'true', sort:'xploit_score', order:'desc', size:SUBPAGE, page: kevPage+1 });
+    const d = await apiFetch('/api/v1/cves/', { kev_only:'true', sort:'cvss_score', order:'desc', size:SUBPAGE, page: kevPage+1 });
     renderRows('kev-rows', d.data || []);
     const total = d.total || 0, pages = d.pages || 1;
     document.getElementById('kev-pager').style.display = 'flex';
@@ -1159,7 +1158,7 @@ async function loadWatchlistCVEs(item) {
     try {
       data = await apiFetch('/api/v1/search/', { q: searchQ, page: 1, size: 50 });
     } catch {
-      data = await apiFetch('/api/v1/cves/', { sort:'xploit_score', order:'desc', size:50, page:1 });
+      data = await apiFetch('/api/v1/cves/', { sort:'cvss_score', order:'desc', size:50, page:1 });
     }
 
     let cves = data.data || [];
@@ -1190,7 +1189,7 @@ async function loadWatchlistCVEs(item) {
     if (cveList) {
       cveList.style.display = 'block';
       if (cves.length) {
-        const top = [...cves].sort((a,b) => (b.xploit_score||0) - (a.xploit_score||0)).slice(0, 5);
+        const top = [...cves].sort((a,b) => (b.cvss_score||0) - (a.cvss_score||0)).slice(0, 5);
         cveList.innerHTML = top.map(c => `
           <div class="wl-cve-row" onclick="openModal('${c.id}')">
             <span class="wl-cve-id">${c.id}</span>
@@ -1224,11 +1223,6 @@ function renderRows(containerId, cves) {
 function buildRow(c) {
   const score  = c.cvss_score || c.cvss_v31_score;
   const sev    = c.severity || 'UNKNOWN';
-  const xs     = c.xploit_score || 0;
-  // Normalize score bar: max meaningful xploit score ~100 but >70 is already extreme
-  // Use sqrt scale so high scores still differentiate visually
-  const barPct = Math.min(Math.round(Math.sqrt(xs / 100) * 100), 100);
-  const xsColor= xs >= 70 ? 'var(--red)' : xs >= 40 ? 'var(--orange)' : xs >= 15 ? 'var(--yellow)' : 'var(--text3)';
   const desc   = (c.description || 'No description').substring(0, 100);
 
   const tags = [];
@@ -1244,12 +1238,6 @@ function buildRow(c) {
       <button class="copy-id-btn" onclick="event.stopPropagation();copyCveId('${c.id}',this)" title="Copy CVE ID">⎘</button>
     </span>
     <span class="cve-desc" title="${escHtml(c.description||'')}">${escHtml(desc)}…</span>
-    <span>
-      <div class="xscore-wrap">
-        <div class="xscore-bar"><div class="xscore-fill" style="width:${barPct}%;background:${xsColor}"></div></div>
-        <span class="xscore-num" style="color:${xsColor}">${xs}</span>
-      </div>
-    </span>
     <span><span class="cvss ${cvssClass(score)}">${score ?? 'N/A'}</span></span>
     <span><span class="sev ${sev}">${sev}</span></span>
     <span class="date-cell">${fmtDate(c.published_at)}</span>
